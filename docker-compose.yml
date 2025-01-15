@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  librarypostgres:
+    image: postgres:16.3
+    container_name: librarypostgres
+    networks:
+      - library-network
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./config/postgres.env  
+
+  pgadmin:
+    image: dpage/pgadmin4:8.9
+    container_name: pgadmin4
+    networks:
+      - library-network
+    ports:
+      - "15432:80"
+    env_file:
+      - ./config/postgres-pgadmin.env  
+
+  librarymongo:
+    image: mongodb/mongodb-community-server:latest
+    container_name: librarymongo
+    networks:
+      - library-network
+    ports:
+      - "27017:27017"
+    env_file:
+      - ./config/mongodb.env  
+
+  mongoexpress:
+    image: mongo-express
+    container_name: mongoexpress
+    networks:
+      - library-network
+    ports:
+      - "8081:8081"
+    env_file:
+      - ./config/mongo-express.env  
+    environment:
+      ME_CONFIG_BASICAUTH: "true"
+
+networks:
+  library-network:
+    driver: bridge

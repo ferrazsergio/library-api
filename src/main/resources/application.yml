@@ -1,0 +1,15 @@
+spring:
+  profiles:
+    active: postgres  # Ativa o perfil 'mongo' para conectar ao MongoDB
+
+  # Configuração geral do projeto
+  project:
+    name: "Livraria API"
+    version: "1.0"
+  
+  # Desabilita o JPA, porque você não está usando um banco SQL
+  jpa:
+    enabled: false
+
+# Definição do banco de dados a ser utilizado (para controle de perfil, por exemplo)
+databaseType: postgres  # Este valor pode ser 'mongo' ou 'postgres' dependendo do banco utilizado
