@@ -4,3 +4,10 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none # Desative o controle de schema automático do Hibernate
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true       # Ativa o Flyway (padrão é true, mas explícito é melhor)
+    locations: classpath:db/migration # Local padrão onde as migrações SQL devem estar

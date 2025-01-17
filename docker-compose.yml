@@ -7,7 +7,7 @@ services:
     networks:
       - library-network
     ports:
-      - "5432:5432"
+      - "5433:5432"
     env_file:
       - ./config/postgres.env  
 
@@ -20,6 +20,8 @@ services:
       - "15432:80"
     env_file:
       - ./config/postgres-pgadmin.env  
+   # extra_hosts:
+     # - "host.docker.internal:host-gateway"  Isto permite acessar a máquina host
 
   librarymongo:
     image: mongodb/mongodb-community-server:latest
