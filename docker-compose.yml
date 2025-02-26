@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   librarypostgres:
     image: postgres:16.3
@@ -7,7 +5,7 @@ services:
     networks:
       - library-network
     ports:
-      - "5433:5432"
+      - "5432:5432"
     env_file:
       - ./config/postgres.env  
 
@@ -48,3 +46,4 @@ services:
 networks:
   library-network:
     driver: bridge
+    name: library-network
