@@ -1,6 +1,6 @@
 services:
   librarypostgres:
-    image: postgres:16.3
+    image: postgres:latest
     container_name: librarypostgres
     networks:
       - library-network
@@ -10,7 +10,7 @@ services:
       - ./config/postgres.env  
 
   pgadmin:
-    image: dpage/pgadmin4:8.9
+    image: dpage/pgadmin4:latest
     container_name: pgadmin4
     networks:
       - library-network
@@ -32,7 +32,7 @@ services:
       - ./config/mongodb.env  
 
   mongoexpress:
-    image: mongo-express
+    image: mongo-express:latest
     container_name: mongoexpress
     networks:
       - library-network
