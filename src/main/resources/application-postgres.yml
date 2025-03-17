@@ -8,6 +8,8 @@ spring:
     hibernate:
       ddl-auto: validate
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
   flyway:
     enabled: true
-    locations: classpath:db/migration # Local padrão onde as migrações SQL devem estar
+    locations: classpath:db/migration
+    baseline-on-migrate: true # Permite que o Flyway aplique migrações em um banco de dados existente
