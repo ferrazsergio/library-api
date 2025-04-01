@@ -15,7 +15,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "autor")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -51,7 +51,8 @@ public class Livro {
     @Column(name = "id_usuario")
     private UUID idUsuario;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne( fetch = FetchType.LAZY
+               ,cascade = CascadeType.ALL)
     @JoinColumn(name = "id_autor", referencedColumnName = "id")
     @ToString.Exclude
     private Autor autor;

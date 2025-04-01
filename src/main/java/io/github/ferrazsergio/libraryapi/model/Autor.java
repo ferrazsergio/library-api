@@ -13,7 +13,7 @@ import java.util.UUID;
 @Builder
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "livros")
 //@RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
@@ -58,4 +58,6 @@ public class Autor {
     public final int hashCode() {
         return this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
+
+
 }
