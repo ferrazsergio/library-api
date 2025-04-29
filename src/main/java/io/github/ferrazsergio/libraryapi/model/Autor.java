@@ -21,6 +21,7 @@ import java.util.UUID;
 public class Autor {
 
     @Id
+
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -58,6 +59,4 @@ public class Autor {
     public final int hashCode() {
         return this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
-
-
 }

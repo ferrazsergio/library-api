@@ -21,7 +21,6 @@ class LivroRepositoryTest {
 
     @Test
     void salvarLivroTest() {
-
         Autor autor = autorRepository.findById(UUID.fromString("f3b8c5a0-4d2e-4b1c-8f7d-6a2e5f3b8c5a0")).orElseThrow();
         Livro livro = Livro.builder()
                 .titulo("Harry Potter e a Pedra Filosofal")
@@ -32,6 +31,7 @@ class LivroRepositoryTest {
                 .build();
          livroRepository.save(livro);
     }
+    
     @Test
     void salvarAutorELivroTest() {
         Livro livro = Livro.builder()
@@ -116,5 +116,49 @@ class LivroRepositoryTest {
         var titulo = "Harry Potter";
         var preco = BigDecimal.valueOf(39.90);
         livroRepository.findByLivroandPreco(titulo, preco).forEach(System.out::println);
+    }
+    @Test
+    void listarLivrosComQueryJPQL() {
+        livroRepository.listarTodosOrdenadoPorTituloAndPreco().forEach(System.out::println);
+    }
+
+    @Test
+    void listarAutoresDosLivros(){
+        livroRepository.listarAutoresDosLivros().forEach(System.out::println);
+    }
+
+    @Test
+    void listarTitulosLivros(){
+        livroRepository.listarTitulosLivros().forEach(System.out::println);
+    }
+
+    @Test
+    void listarGenerosAutoresBrasileiros(){
+        livroRepository.listarGenerosAutoresBrasileiros().forEach(System.out::println);
+    }
+
+    @Test
+    void listarLivrosPorGenero(){
+        var genero = Genero.FANTASIA;
+        var paramOrdenacao = "titulo";
+        livroRepository.findByGenero(genero, paramOrdenacao).forEach(System.out::println);
+    }
+
+    @Test
+    void listarLivrosPorGeneroPositionalParameters(){
+        var genero = Genero.FANTASIA;
+        var paramOrdenacao = "titulo";
+        livroRepository.findByGeneroPositionalParameters(genero, paramOrdenacao).forEach(System.out::println);
+    }
+
+    @Test
+    void deletarLivrosPorGenero(){
+        var genero = Genero.FANTASIA;
+        livroRepository.deleteByGenero(genero);
+    }
+    @Test
+    void updateDataPublicacao(){
+        var dataPublicacao = LocalDate.of(1998, 7, 2);
+        livroRepository.updateDataPublicacao(dataPublicacao);
     }
 }
