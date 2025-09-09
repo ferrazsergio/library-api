@@ -1,11 +1,10 @@
-package model.domain;
+package io.github.ferrazsergio.libraryapi.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import model.domain.Loan;
 
 import java.math.BigDecimal;
 

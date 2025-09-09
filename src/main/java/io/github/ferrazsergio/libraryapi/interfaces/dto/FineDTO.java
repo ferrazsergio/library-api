@@ -1,11 +1,11 @@
-package interfaces.dto;
+package io.github.ferrazsergio.libraryapi.interfaces.dto;
 
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import model.domain.Fine;
+import io.github.ferrazsergio.libraryapi.domain.model.Fine;
 
 import java.math.BigDecimal;
 

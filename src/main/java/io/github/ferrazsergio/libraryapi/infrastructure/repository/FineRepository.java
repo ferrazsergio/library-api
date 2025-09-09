@@ -1,6 +1,6 @@
-package infrastructure.repository;
+package io.github.ferrazsergio.libraryapi.infrastructure.repository;
 
-import model.domain.Fine;
+import io.github.ferrazsergio.libraryapi.domain.model.Fine;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

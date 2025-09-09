@@ -1,4 +1,4 @@
-package interfaces.dto;
+package io.github.ferrazsergio.libraryapi.interfaces.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import jakarta.validation.constraints.NotBlank;
-import model.domain.Category;
+import io.github.ferrazsergio.libraryapi.domain.model.Category;
 
 @Data
 @Builder

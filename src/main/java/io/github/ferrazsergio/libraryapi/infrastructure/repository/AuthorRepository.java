@@ -1,6 +1,6 @@
-package infrastructure.repository;
+package io.github.ferrazsergio.libraryapi.infrastructure.repository;
 
-import model.domain.Author;
+import io.github.ferrazsergio.libraryapi.domain.model.Author;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

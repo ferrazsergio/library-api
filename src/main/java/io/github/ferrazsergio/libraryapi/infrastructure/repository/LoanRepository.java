@@ -1,6 +1,6 @@
-package infrastructure.repository;
+package io.github.ferrazsergio.libraryapi.infrastructure.repository;
 
-import model.domain.Loan;
+import io.github.ferrazsergio.libraryapi.domain.model.Loan;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

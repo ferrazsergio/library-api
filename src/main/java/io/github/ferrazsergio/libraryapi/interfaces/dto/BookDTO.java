@@ -1,4 +1,4 @@
-package interfaces.dto;
+package io.github.ferrazsergio.libraryapi.interfaces.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import model.domain.Book;
+import io.github.ferrazsergio.libraryapi.domain.model.Book;
 
 import java.time.LocalDate;
 import java.util.Set;

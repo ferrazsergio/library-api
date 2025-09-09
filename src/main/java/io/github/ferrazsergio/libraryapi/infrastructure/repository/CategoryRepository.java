@@ -1,6 +1,6 @@
-package infrastructure.repository;
+package io.github.ferrazsergio.libraryapi.infrastructure.repository;
 
-import model.domain.Category;
+import io.github.ferrazsergio.libraryapi.domain.model.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

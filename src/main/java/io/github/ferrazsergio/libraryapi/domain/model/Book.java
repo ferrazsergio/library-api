@@ -1,4 +1,4 @@
-package model.domain;
+package io.github.ferrazsergio.libraryapi.domain.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
