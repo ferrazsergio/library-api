@@ -149,15 +149,17 @@ public class BookService {
             book.setCategory(null);
         }
 
-        // Update authors if provided
+        // Update authors if provided - MÉTODO MODIFICADO PARA RESOLVER O ERRO
         if (bookDTO.getAuthorIds() != null) {
-            Set<Author> authors = new HashSet<>();
+            // Limpar a coleção existente para evitar ConcurrentModificationException
+            book.getAuthors().clear();
+
+            // Adicionar os novos autores um por um
             for (Integer authorId : bookDTO.getAuthorIds()) {
                 Author author = authorRepository.findById(authorId)
                         .orElseThrow(() -> new RuntimeException("Author not found with ID: " + authorId));
-                authors.add(author);
+                book.getAuthors().add(author);
             }
-            book.setAuthors(authors);
         }
 
         Book updatedBook = bookRepository.save(book);
