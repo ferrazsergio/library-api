@@ -12,6 +12,9 @@ services:
       - SPRING_FLYWAY_ENABLED=true
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
+      # Adicionando configurações para desabilitar MongoDB
+      - SPRING_DATA_MONGODB_ENABLED=false
+      - SPRING_AUTOCONFIGURE_EXCLUDE=org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration,org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
     depends_on:
       - db
       - redis
@@ -41,6 +44,20 @@ services:
       timeout: 5s
       retries: 5
 
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@example.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - library-network
+    depends_on:
+      - db
+
   redis:
     image: redis:7-alpine
     ports:
@@ -58,6 +75,7 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  pgadmin-data:
 
 networks:
   library-network:
