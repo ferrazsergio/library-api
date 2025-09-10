@@ -14,7 +14,7 @@ import io.github.ferrazsergio.libraryapi.domain.model.Category;
 @AllArgsConstructor
 public class CategoryDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "Category name is required")
     private String name;

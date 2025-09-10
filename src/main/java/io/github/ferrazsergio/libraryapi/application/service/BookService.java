@@ -38,7 +38,7 @@ public class BookService {
 
     @Transactional(readOnly = true)
     @Cacheable(value = "books", key = "#id", unless = "#result == null")
-    public BookDTO findById(Long id) {
+    public BookDTO findById(Integer id) {
         return bookRepository.findById(id)
                 .map(BookDTO::fromEntity)
                 .orElseThrow(() -> new RuntimeException("Book not found with ID: " + id));
@@ -57,13 +57,13 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public Page<BookDTO> findByAuthor(Long authorId, Pageable pageable) {
+    public Page<BookDTO> findByAuthor(Integer authorId, Pageable pageable) {
         return bookRepository.findByAuthorId(authorId, pageable)
                 .map(BookDTO::fromEntity);
     }
 
     @Transactional(readOnly = true)
-    public Page<BookDTO> findByCategory(Long categoryId, Pageable pageable) {
+    public Page<BookDTO> findByCategory(Integer categoryId, Pageable pageable) {
         return bookRepository.findByCategoryId(categoryId, pageable)
                 .map(BookDTO::fromEntity);
     }
@@ -97,7 +97,7 @@ public class BookService {
         // Set authors if provided
         if (bookDTO.getAuthorIds() != null && !bookDTO.getAuthorIds().isEmpty()) {
             Set<Author> authors = new HashSet<>();
-            for (Long authorId : bookDTO.getAuthorIds()) {
+            for (Integer authorId : bookDTO.getAuthorIds()) {
                 Author author = authorRepository.findById(authorId)
                         .orElseThrow(() -> new RuntimeException("Author not found with ID: " + authorId));
                 authors.add(author);
@@ -113,7 +113,7 @@ public class BookService {
 
     @Transactional
     @CacheEvict(value = "books", key = "#id")
-    public BookDTO update(Long id, BookDTO bookDTO) {
+    public BookDTO update(Integer id, BookDTO bookDTO) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Book not found with ID: " + id));
 
@@ -152,7 +152,7 @@ public class BookService {
         // Update authors if provided
         if (bookDTO.getAuthorIds() != null) {
             Set<Author> authors = new HashSet<>();
-            for (Long authorId : bookDTO.getAuthorIds()) {
+            for (Integer authorId : bookDTO.getAuthorIds()) {
                 Author author = authorRepository.findById(authorId)
                         .orElseThrow(() -> new RuntimeException("Author not found with ID: " + authorId));
                 authors.add(author);
@@ -166,7 +166,7 @@ public class BookService {
 
     @Transactional
     @CacheEvict(value = "books", key = "#id")
-    public void delete(Long id) {
+    public void delete(Integer id) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Book not found with ID: " + id));
 

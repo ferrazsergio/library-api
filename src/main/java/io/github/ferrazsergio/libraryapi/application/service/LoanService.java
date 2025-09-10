@@ -68,7 +68,7 @@ public class LoanService {
     }
 
     @Transactional
-    public LoanDTO returnBook(Long loanId) {
+    public LoanDTO returnBook(Integer loanId) {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Loan not found with ID: " + loanId));
 
@@ -91,7 +91,7 @@ public class LoanService {
     }
 
     @Transactional
-    public LoanDTO renewLoan(Long loanId) {
+    public LoanDTO renewLoan(Integer loanId) {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Loan not found with ID: " + loanId));
 
@@ -102,7 +102,7 @@ public class LoanService {
     }
 
     @Transactional(readOnly = true)
-    public LoanDTO findById(Long id) {
+    public LoanDTO findById(Integer id) {
         return loanRepository.findById(id)
                 .map(LoanDTO::fromEntity)
                 .orElseThrow(() -> new RuntimeException("Loan not found with ID: " + id));
@@ -115,7 +115,7 @@ public class LoanService {
     }
 
     @Transactional(readOnly = true)
-    public Page<LoanDTO> findByUser(Long userId, Pageable pageable) {
+    public Page<LoanDTO> findByUser(Integer userId, Pageable pageable) {
         // Verify user exists
         userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));

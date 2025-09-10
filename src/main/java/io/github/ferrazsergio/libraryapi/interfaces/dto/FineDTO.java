@@ -15,8 +15,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class FineDTO {
 
-    private Long id;
-    private Long loanId;
+    private Integer id;
+    private Integer loanId;
     private BigDecimal amount;
     private boolean paid;
     private String description;

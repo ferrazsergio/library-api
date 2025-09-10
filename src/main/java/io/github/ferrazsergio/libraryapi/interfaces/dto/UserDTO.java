@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class UserDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "Name is required")
     private String name;

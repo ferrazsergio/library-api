@@ -18,7 +18,7 @@ public class Fine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @OneToOne
     @JoinColumn(name = "loan_id", nullable = false)

@@ -31,7 +31,7 @@ public class BookController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get book by ID")
-    public ResponseEntity<BookDTO> getBookById(@PathVariable Long id) {
+    public ResponseEntity<BookDTO> getBookById(@PathVariable Integer id) {
         return ResponseEntity.ok(bookService.findById(id));
     }
 
@@ -52,7 +52,7 @@ public class BookController {
     @GetMapping("/search/author/{authorId}")
     @Operation(summary = "Search books by author")
     public ResponseEntity<Page<BookDTO>> searchBooksByAuthor(
-            @PathVariable Long authorId,
+            @PathVariable Integer authorId,
             Pageable pageable) {
         return ResponseEntity.ok(bookService.findByAuthor(authorId, pageable));
     }
@@ -60,7 +60,7 @@ public class BookController {
     @GetMapping("/search/category/{categoryId}")
     @Operation(summary = "Search books by category")
     public ResponseEntity<Page<BookDTO>> searchBooksByCategory(
-            @PathVariable Long categoryId,
+            @PathVariable Integer categoryId,
             Pageable pageable) {
         return ResponseEntity.ok(bookService.findByCategory(categoryId, pageable));
     }
@@ -76,7 +76,7 @@ public class BookController {
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     @Operation(summary = "Update an existing book")
     public ResponseEntity<BookDTO> updateBook(
-            @PathVariable Long id,
+            @PathVariable Integer id,
             @Valid @RequestBody BookDTO bookDTO) {
         return ResponseEntity.ok(bookService.update(id, bookDTO));
     }
@@ -84,7 +84,7 @@ public class BookController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     @Operation(summary = "Delete a book (soft delete)")
-    public ResponseEntity<Void> deleteBook(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteBook(@PathVariable Integer id) {
         bookService.delete(id);
         return ResponseEntity.noContent().build();
     }

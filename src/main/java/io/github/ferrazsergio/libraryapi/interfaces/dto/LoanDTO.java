@@ -17,13 +17,13 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class LoanDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotNull(message = "User ID is required")
-    private Long userId;
+    private Integer userId;
 
     @NotNull(message = "Book ID is required")
-    private Long bookId;
+    private Integer bookId;
 
     private LocalDate loanDate;
 

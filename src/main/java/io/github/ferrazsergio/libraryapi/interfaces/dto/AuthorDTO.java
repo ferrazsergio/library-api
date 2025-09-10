@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class AuthorDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "Author name is required")
     private String name;

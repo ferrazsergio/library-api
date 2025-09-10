@@ -9,11 +9,11 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FineRepository extends JpaRepository<Fine, Long> {
+public interface FineRepository extends JpaRepository<Fine, Integer> {
 
     @Query("SELECT f FROM Fine f WHERE f.loan.user.id = :userId AND f.paid = false")
-    List<Fine> findUnpaidFinesByUserId(@Param("userId") Long userId);
+    List<Fine> findUnpaidFinesByUserId(@Param("userId") Integer userId);
 
     @Query("SELECT SUM(f.amount) FROM Fine f WHERE f.loan.user.id = :userId AND f.paid = false")
-    Double getTotalUnpaidFinesForUser(@Param("userId") Long userId);
+    Double getTotalUnpaidFinesForUser(@Param("userId") Integer userId);
 }

@@ -13,7 +13,7 @@ public class UserSecurityService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public boolean isSameUser(Long userId, Authentication authentication) {
+    public boolean isSameUser(Integer userId, Authentication authentication) {
         if (authentication == null) {
             return false;
         }

@@ -13,7 +13,7 @@ public class LoanSecurityService {
     private final LoanRepository loanRepository;
 
     @Transactional(readOnly = true)
-    public boolean isLoanOwner(Long loanId, Authentication authentication) {
+    public boolean isLoanOwner(Integer loanId, Authentication authentication) {
         if (authentication == null) {
             return false;
         }

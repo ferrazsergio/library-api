@@ -14,5 +14,5 @@ public interface AuthorRepository extends JpaRepository<Author, Integer> {
     Page<Author> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
     @Query("SELECT a FROM Author a JOIN a.books b WHERE b.id = :bookId")
-    Page<Author> findByBookId(@Param("bookId") Long bookId, Pageable pageable);
+    Page<Author> findByBookId(@Param("bookId") Integer bookId, Pageable pageable);
 }

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class BookDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotBlank(message = "ISBN is required")
     private String isbn;
@@ -40,9 +40,9 @@ public class BookDTO {
     @Positive(message = "Total quantity must be positive")
     private Integer totalQuantity;
 
-    private Set<Long> authorIds;
+    private Set<Integer> authorIds;
 
-    private Long categoryId;
+    private Integer categoryId;
 
     private String publisher;
 

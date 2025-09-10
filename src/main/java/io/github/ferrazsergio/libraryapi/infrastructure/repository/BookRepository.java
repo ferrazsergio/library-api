@@ -12,17 +12,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BookRepository extends JpaRepository<Book, Long> {
+public interface BookRepository extends JpaRepository<Book, Integer> {
 
     Optional<Book> findByIsbn(String isbn);
 
     Page<Book> findByTitleContainingIgnoreCaseAndDeletedFalse(String title, Pageable pageable);
 
     @Query("SELECT b FROM Book b JOIN b.authors a WHERE a.id = :authorId AND b.deleted = false")
-    Page<Book> findByAuthorId(@Param("authorId") Long authorId, Pageable pageable);
+    Page<Book> findByAuthorId(@Param("authorId") Integer authorId, Pageable pageable);
 
     @Query("SELECT b FROM Book b JOIN b.category c WHERE c.id = :categoryId AND b.deleted = false")
-    Page<Book> findByCategoryId(@Param("categoryId") Long categoryId, Pageable pageable);
+    Page<Book> findByCategoryId(@Param("categoryId") Integer categoryId, Pageable pageable);
 
     @Query("SELECT b FROM Book b WHERE b.deleted = false")
     Page<Book> findAllNotDeleted(Pageable pageable);

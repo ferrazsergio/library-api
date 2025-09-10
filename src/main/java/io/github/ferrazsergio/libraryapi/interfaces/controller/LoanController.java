@@ -33,7 +33,7 @@ public class LoanController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN') or @loanSecurityService.isLoanOwner(#id, authentication)")
     @Operation(summary = "Get loan by ID")
-    public ResponseEntity<LoanDTO> getLoanById(@PathVariable Long id) {
+    public ResponseEntity<LoanDTO> getLoanById(@PathVariable Integer id) {
         return ResponseEntity.ok(loanService.findById(id));
     }
 
@@ -41,7 +41,7 @@ public class LoanController {
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN') or @userSecurityService.isSameUser(#userId, authentication)")
     @Operation(summary = "Get loans by user ID")
     public ResponseEntity<Page<LoanDTO>> getLoansByUser(
-            @PathVariable Long userId,
+            @PathVariable Integer userId,
             Pageable pageable) {
         return ResponseEntity.ok(loanService.findByUser(userId, pageable));
     }
@@ -56,14 +56,14 @@ public class LoanController {
     @PutMapping("/{id}/return")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN')")
     @Operation(summary = "Return a borrowed book")
-    public ResponseEntity<LoanDTO> returnBook(@PathVariable Long id) {
+    public ResponseEntity<LoanDTO> returnBook(@PathVariable Integer id) {
         return ResponseEntity.ok(loanService.returnBook(id));
     }
 
     @PutMapping("/{id}/renew")
     @PreAuthorize("hasAnyRole('ADMIN', 'LIBRARIAN') or @loanSecurityService.isLoanOwner(#id, authentication)")
     @Operation(summary = "Renew a loan")
-    public ResponseEntity<LoanDTO> renewLoan(@PathVariable Long id) {
+    public ResponseEntity<LoanDTO> renewLoan(@PathVariable Integer id) {
         return ResponseEntity.ok(loanService.renewLoan(id));
     }
 
