@@ -6,11 +6,14 @@ import io.github.ferrazsergio.libraryapi.domain.model.Category;
 import io.github.ferrazsergio.libraryapi.infrastructure.repository.AuthorRepository;
 import io.github.ferrazsergio.libraryapi.infrastructure.repository.BookRepository;
 import io.github.ferrazsergio.libraryapi.infrastructure.repository.CategoryRepository;
+import io.github.ferrazsergio.libraryapi.infrastructure.repository.LoanRepository;
 import io.github.ferrazsergio.libraryapi.interfaces.dto.BookDTO;
+import io.github.ferrazsergio.libraryapi.interfaces.dto.CategoryStatisticsDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +30,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
     private final CategoryRepository categoryRepository;
+    private final LoanRepository loanRepository;
 
     @Transactional(readOnly = true)
     @Cacheable(value = "books", key = "#isbn", unless = "#result == null")
@@ -181,6 +185,73 @@ public class BookService {
     public List<BookDTO> findMostBorrowedBooks(int limit) {
         Pageable pageable = Pageable.ofSize(limit);
         return bookRepository.findMostBorrowedBooks(pageable)
+                .stream()
+                .map(BookDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    // ==================== NOVOS MÉTODOS PARA DASHBOARD ====================
+
+    /**
+     * Retorna o número total de livros não deletados no sistema.
+     *
+     * @return total de livros
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(value = "bookStats", key = "'totalBooks'", unless = "#result == 0")
+    public long getTotalBooks() {
+        return bookRepository.countByDeletedFalse();
+    }
+
+    /**
+     * Busca as categorias mais emprestadas, ordenadas por frequência.
+     *
+     * @param limit número máximo de categorias a retornar
+     * @return lista de estatísticas por categoria
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(value = "bookStats", key = "'mostBorrowedCategories:' + #limit", unless = "#result.isEmpty()")
+    public List<CategoryStatisticsDTO> getMostBorrowedCategories(int limit) {
+        return bookRepository.findMostBorrowedCategories(PageRequest.of(0, limit))
+                .stream()
+                .map(result -> {
+                    Category category = (Category) result[0];
+                    Long count = (Long) result[1];
+                    return CategoryStatisticsDTO.builder()
+                            .category(category.getName())
+                            .count(count)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retorna a porcentagem de livros disponíveis em relação ao total.
+     *
+     * @return porcentagem de disponibilidade
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(value = "bookStats", key = "'availabilityPercentage'")
+    public double getBookAvailabilityPercentage() {
+        long totalQuantity = bookRepository.sumTotalQuantity();
+        long availableQuantity = bookRepository.sumAvailableQuantity();
+
+        if (totalQuantity == 0) {
+            return 0.0;
+        }
+
+        return (double) availableQuantity / totalQuantity * 100.0;
+    }
+
+    /**
+     * Retorna os livros recentemente adicionados.
+     *
+     * @param limit número máximo de livros a retornar
+     * @return lista de livros recentes
+     */
+    @Transactional(readOnly = true)
+    public List<BookDTO> getRecentlyAddedBooks(int limit) {
+        return bookRepository.findByDeletedFalseOrderByIdDesc(PageRequest.of(0, limit))
                 .stream()
                 .map(BookDTO::fromEntity)
                 .collect(Collectors.toList());

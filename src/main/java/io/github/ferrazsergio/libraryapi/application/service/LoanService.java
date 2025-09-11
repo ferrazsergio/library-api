@@ -8,13 +8,17 @@ import io.github.ferrazsergio.libraryapi.infrastructure.repository.FineRepositor
 import io.github.ferrazsergio.libraryapi.infrastructure.repository.LoanRepository;
 import io.github.ferrazsergio.libraryapi.infrastructure.repository.UserRepository;
 import io.github.ferrazsergio.libraryapi.interfaces.dto.LoanDTO;
+import io.github.ferrazsergio.libraryapi.interfaces.dto.RecentActivityDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -130,5 +134,105 @@ public class LoanService {
                 .stream()
                 .map(LoanDTO::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    // ==================== NOVOS MÉTODOS PARA DASHBOARD ====================
+
+    /**
+     * Retorna o número total de empréstimos no sistema.
+     *
+     * @return total de empréstimos
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(value = "loanStats", key = "'totalLoans'")
+    public long getTotalLoans() {
+        return loanRepository.getTotalLoans();
+    }
+
+    /**
+     * Retorna o número de empréstimos ativos no sistema.
+     *
+     * @return total de empréstimos ativos
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(value = "loanStats", key = "'activeLoans'")
+    public long getActiveLoansCount() {
+        return loanRepository.countByStatus(Loan.LoanStatus.ACTIVE);
+    }
+
+    /**
+     * Retorna o número de empréstimos em atraso no sistema.
+     *
+     * @return total de empréstimos em atraso
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(value = "loanStats", key = "'overdueLoans'")
+    public long getOverdueLoansCount() {
+        return loanRepository.countOverdueLoans();
+    }
+
+    /**
+     * Retorna a taxa de devolução dentro do prazo (em porcentagem).
+     *
+     * @return taxa de devolução dentro do prazo
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(value = "loanStats", key = "'onTimeReturnRate'")
+    public double getOnTimeReturnRate() {
+        long totalReturned = loanRepository.countByStatus(Loan.LoanStatus.RETURNED);
+        if (totalReturned == 0) {
+            return 0.0;
+        }
+
+        long returnedOnTime = loanRepository.countReturnedOnTime();
+        return (double) returnedOnTime / totalReturned * 100.0;
+    }
+
+    /**
+     * Retorna as atividades de empréstimo mais recentes para o dashboard.
+     *
+     * @param limit número máximo de atividades a retornar
+     * @return lista de atividades recentes
+     */
+    @Transactional(readOnly = true)
+    public List<RecentActivityDTO> getRecentLoanActivities(int limit) {
+        return loanRepository.findRecentLoanActivities(PageRequest.of(0, limit))
+                .stream()
+                .map(loan -> {
+                    String activityType;
+                    String description;
+
+                    if (loan.getReturnDate() != null) {
+                        activityType = "RETURN";
+                        description = "Livro devolvido";
+                    } else if (loan.getRenewalCount() > 0) {
+                        activityType = "RENEWAL";
+                        description = "Empréstimo renovado";
+                    } else {
+                        activityType = "LOAN";
+                        description = "Novo empréstimo";
+                    }
+
+                    return RecentActivityDTO.builder()
+                            .id(Long.valueOf(loan.getId()))
+                            .activityType(activityType)
+                            .description(description)
+                            .timestamp(loan.getLastUpdated() != null ? loan.getLastUpdated() : LocalDateTime.now())
+                            .userName(loan.getUser().getName())
+                            .bookTitle(loan.getBook().getTitle())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Retorna estatísticas de empréstimos por mês (últimos 6 meses).
+     *
+     * @return mapa com contagem de empréstimos por mês
+     */
+    @Transactional(readOnly = true)
+    @Cacheable(value = "loanStats", key = "'loansByMonth'")
+    public List<Object[]> getLoanStatisticsByMonth() {
+        return loanRepository.getLoanStatisticsByMonth();
     }
 }

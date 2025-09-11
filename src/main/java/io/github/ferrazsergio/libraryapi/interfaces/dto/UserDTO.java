@@ -1,13 +1,10 @@
 package io.github.ferrazsergio.libraryapi.interfaces.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import io.github.ferrazsergio.libraryapi.domain.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import io.github.ferrazsergio.libraryapi.domain.model.User;
 
 import java.time.LocalDateTime;
 
@@ -16,31 +13,27 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO {
-
     private Integer id;
-
-    @NotBlank(message = "Name is required")
     private String name;
-
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
     private String email;
-
-    private String password;
-
-    @NotNull(message = "Role is required")
-    private String role;
-
+    private String password; // Apenas para entrada, nunca retornado nas respostas
+    private String phone;
+    private String address;
+    private User.Role role;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
+    // Método para converter entidade para DTO (sem retornar a senha)
     public static UserDTO fromEntity(User user) {
         return UserDTO.builder()
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
-                // Don't include password in response
-                .role(user.getRole().name())
+                .phone(user.getPhone())
+                .address(user.getAddress())
+                .role(user.getRole())
                 .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 }

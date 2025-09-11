@@ -34,4 +34,17 @@ public interface BookRepository extends JpaRepository<Book, Integer> {
         ORDER BY COUNT(l.id) DESC
     """)
     List<Book> findMostBorrowedBooks(Pageable pageable);
+
+    long countByDeletedFalse();
+
+    @Query("SELECT SUM(b.totalQuantity) FROM Book b WHERE b.deleted = false")
+    long sumTotalQuantity();
+
+    @Query("SELECT SUM(b.availableQuantity) FROM Book b WHERE b.deleted = false")
+    long sumAvailableQuantity();
+
+    Page<Book> findByDeletedFalseOrderByIdDesc(Pageable pageable);
+
+    @Query("SELECT b.category, COUNT(l) as loanCount FROM Loan l JOIN l.book b WHERE b.deleted = false GROUP BY b.category ORDER BY loanCount DESC")
+    List<Object[]> findMostBorrowedCategories(Pageable pageable);
 }

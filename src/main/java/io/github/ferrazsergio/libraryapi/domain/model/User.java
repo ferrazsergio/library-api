@@ -37,8 +37,21 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    private String phone;
+
+    private String address;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Column(nullable = false)
+    private boolean deleted = false;
 
     @OneToMany(mappedBy = "user")
     private Set<Loan> loans = new HashSet<>();
@@ -46,6 +59,11 @@ public class User {
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 
     public enum Role {

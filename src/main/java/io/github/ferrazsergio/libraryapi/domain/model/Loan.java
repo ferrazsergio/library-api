@@ -9,6 +9,7 @@ import org.hibernate.proxy.HibernateProxy;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Data
@@ -47,6 +48,12 @@ public class Loan {
     @OneToOne(mappedBy = "loan", cascade = CascadeType.ALL)
     private Fine fine;
 
+    @Column(name = "last_updated")
+    private LocalDateTime lastUpdated;
+
+    @Column(name = "renewal_count")
+    private Integer renewalCount = 0;
+
     public boolean isOverdue() {
         return status == LoanStatus.ACTIVE &&
                 LocalDate.now().isAfter(expectedReturnDate);
@@ -54,14 +61,16 @@ public class Loan {
 
     public void returnBook() {
         if (status != LoanStatus.ACTIVE) {
-            throw new IllegalStateException("Cannot return a book that is not currently loaned");
+            throw new RuntimeException("This loan is not active");
         }
 
-        this.returnDate = LocalDate.now();
-        this.status = LoanStatus.RETURNED;
+        status = LoanStatus.RETURNED;
+        returnDate = LocalDate.now();
+        lastUpdated = LocalDateTime.now();
 
-        if (isOverdue()) {
-            this.calculateFine();
+        // Se o livro estiver em atraso, calcular multa
+        if (returnDate.isAfter(expectedReturnDate)) {
+            calculateFine();
         }
     }
 
@@ -80,15 +89,16 @@ public class Loan {
 
     public void renew() {
         if (status != LoanStatus.ACTIVE) {
-            throw new IllegalStateException("Cannot renew a loan that is not active");
+            throw new RuntimeException("Cannot renew a non-active loan");
         }
 
-        if (isOverdue()) {
-            throw new IllegalStateException("Cannot renew an overdue loan");
+        if (renewalCount >= 3) {
+            throw new RuntimeException("Maximum renewal count reached");
         }
 
-        // Add standard loan period (e.g., 14 days) to the current expected return date
-        this.expectedReturnDate = this.expectedReturnDate.plusDays(14);
+        renewalCount++;
+        expectedReturnDate = expectedReturnDate.plusDays(14);
+        lastUpdated = LocalDateTime.now();
     }
 
     public enum LoanStatus {

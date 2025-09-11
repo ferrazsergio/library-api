@@ -24,4 +24,41 @@ public interface LoanRepository extends JpaRepository<Loan, Integer> {
 
     @Query("SELECT COUNT(l) FROM Loan l WHERE l.status = 'ACTIVE' AND l.book.id = :bookId")
     long countActiveLoansForBook(@Param("bookId") Integer bookId);
+
+    @Query("SELECT COUNT(l) FROM Loan l WHERE l.status = 'ACTIVE' AND l.expectedReturnDate < CURRENT_DATE")
+    long countOverdueLoans();
+
+    @Query("SELECT COUNT(l) FROM Loan l WHERE l.status = 'RETURNED' AND (l.returnDate <= l.expectedReturnDate)")
+    long countReturnedOnTime();
+
+    @Query("SELECT l FROM Loan l ORDER BY " +
+            "CASE " +
+            "  WHEN l.returnDate IS NOT NULL THEN l.returnDate " +
+            "  WHEN l.lastUpdated IS NOT NULL THEN l.lastUpdated " +
+            "  ELSE l.loanDate " +
+            "END DESC")
+    List<Loan> findRecentLoanActivities(Pageable pageable);
+
+    @Query("SELECT FUNCTION('MONTH', l.loanDate) as month, COUNT(l) " +
+            "FROM Loan l " +
+            "WHERE l.loanDate >= FUNCTION('DATE_SUB', CURRENT_DATE, 180) " +
+            "GROUP BY FUNCTION('MONTH', l.loanDate) " +
+            "ORDER BY month")
+    List<Object[]> getLoanStatisticsByMonth();
+
+    /**
+     * Conta empréstimos por status.
+     *
+     * @param status status do empréstimo
+     * @return contagem de empréstimos com o status especificado
+     */
+    long countByStatus(Loan.LoanStatus status);
+
+    /**
+     * Retorna o número total de empréstimos.
+     *
+     * @return total de empréstimos
+     */
+    @Query("SELECT COUNT(l) FROM Loan l")
+    long getTotalLoans();
 }
