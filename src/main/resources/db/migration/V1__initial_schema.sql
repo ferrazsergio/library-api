@@ -7,7 +7,7 @@ CREATE TABLE categories (
 
 -- Authors
 CREATE TABLE authors (
-                         id BIGSERIAL PRIMARY KEY,
+                         id SERIAL PRIMARY KEY,
                          name VARCHAR(255) NOT NULL,
                          biography TEXT,
                          birth_date DATE

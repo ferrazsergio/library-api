@@ -156,7 +156,7 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
 
         try {
-            user.setRole(User.Role.valueOf(userDTO.getRole()));
+            user.setRole(User.Role.valueOf(String.valueOf(userDTO.getRole())));
         } catch (IllegalArgumentException e) {
             user.setRole(User.Role.READER); // Default role
         }
