@@ -34,17 +34,21 @@ CREATE TABLE book_author (
                              PRIMARY KEY (book_id, author_id)
 );
 
--- Users
 CREATE TABLE users (
                        id SERIAL PRIMARY KEY,
                        name VARCHAR(255) NOT NULL,
                        email VARCHAR(255) NOT NULL UNIQUE,
                        password VARCHAR(255) NOT NULL,
                        role VARCHAR(20) NOT NULL,
-                       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+                       phone VARCHAR(255),
+                       address VARCHAR(255),
+                       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                       updated_at TIMESTAMP,
+                       deleted_at TIMESTAMP,
+                       deleted BOOLEAN NOT NULL DEFAULT FALSE
 );
 
--- Loans
+
 CREATE TABLE loans (
                        id SERIAL PRIMARY KEY,
                        user_id INTEGER NOT NULL REFERENCES users(id),
@@ -53,6 +57,8 @@ CREATE TABLE loans (
                        expected_return_date DATE NOT NULL,
                        return_date DATE,
                        status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+                       last_updated TIMESTAMP,
+                       renewal_count INTEGER DEFAULT 0,
                        CONSTRAINT unique_active_loan UNIQUE (user_id, book_id, status)
 );
 

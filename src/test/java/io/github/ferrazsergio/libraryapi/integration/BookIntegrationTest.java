@@ -1,10 +1,11 @@
-package integration;
+package io.github.ferrazsergio.libraryapi.integration;
 
 import io.github.ferrazsergio.libraryapi.domain.model.Book;
 import io.github.ferrazsergio.libraryapi.domain.model.Category;
 import io.github.ferrazsergio.libraryapi.infrastructure.repository.BookRepository;
 import io.github.ferrazsergio.libraryapi.infrastructure.repository.CategoryRepository;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
@@ -38,15 +39,11 @@ public class BookIntegrationTest {
         registry.add("spring.datasource.password", postgresContainer::getPassword);
     }
 
+    @Autowired
+    private BookRepository bookRepository;
 
-    private final BookRepository bookRepository;
-
-    private final CategoryRepository categoryRepository;
-
-    public BookIntegrationTest(BookRepository bookRepository, CategoryRepository categoryRepository) {
-        this.bookRepository = bookRepository;
-        this.categoryRepository = categoryRepository;
-    }
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Test
     void shouldSaveAndFindBook() {

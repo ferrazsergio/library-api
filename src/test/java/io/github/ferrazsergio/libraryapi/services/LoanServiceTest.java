@@ -1,4 +1,4 @@
-package services;
+package io.github.ferrazsergio.libraryapi.services;
 
 import io.github.ferrazsergio.libraryapi.application.service.LoanService;
 import io.github.ferrazsergio.libraryapi.domain.model.Book;
@@ -68,7 +68,7 @@ public class LoanServiceTest {
         book.setId(1);
         book.setTitle("1984");
         book.setIsbn("9780451524935");
-        book.setAvailableQuantity(5);
+        book.setAvailableQuantity(4);
         book.setTotalQuantity(5);
         book.setDeleted(false);
 

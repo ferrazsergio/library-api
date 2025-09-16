@@ -1,5 +1,6 @@
 package io.github.ferrazsergio.libraryapi.application.service;
 
+import io.github.ferrazsergio.libraryapi.domain.model.Activity;
 import io.github.ferrazsergio.libraryapi.infrastructure.repository.ActivityRepository;
 import io.github.ferrazsergio.libraryapi.interfaces.dto.RecentActivityDTO;
 import org.springframework.beans.factory.annotation.Autowired;

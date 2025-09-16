@@ -1,61 +1,40 @@
-/*package controllers;
+package io.github.ferrazsergio.libraryapi.interfaces.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ferrazsergio.libraryapi.domain.model.User;
 import io.github.ferrazsergio.libraryapi.infrastructure.repository.UserRepository;
-import io.github.ferrazsergio.libraryapi.interfaces.controller.AuthController;
 import io.github.ferrazsergio.libraryapi.interfaces.dto.AuthRequestDTO;
 import io.github.ferrazsergio.libraryapi.interfaces.dto.UserDTO;
 import io.github.ferrazsergio.libraryapi.security.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AuthController.class)
-public class AuthControllerTest {
-
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public AuthenticationManager authenticationManager() {
-            return Mockito.mock(AuthenticationManager.class);
-        }
-
-        @Bean
-        public UserRepository userRepository() {
-            return Mockito.mock(UserRepository.class);
-        }
-
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-            return Mockito.mock(PasswordEncoder.class);
-        }
-
-        @Bean
-        public JwtTokenProvider jwtTokenProvider() {
-            return Mockito.mock(JwtTokenProvider.class);
-        }
-    }
+@WebMvcTest(value = AuthController.class, excludeAutoConfiguration = {SecurityAutoConfiguration.class})
+class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -63,16 +42,16 @@ public class AuthControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
+    @MockitoBean
     private AuthenticationManager authenticationManager;
 
-    @Autowired
+    @MockitoBean
     private UserRepository userRepository;
 
-    @Autowired
+    @MockitoBean
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
+    @MockitoBean
     private JwtTokenProvider jwtTokenProvider;
 
     private UserDTO userDTO;
@@ -81,22 +60,18 @@ public class AuthControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Reset mocks before each test
-        Mockito.reset(authenticationManager, userRepository, passwordEncoder, jwtTokenProvider);
+        reset(authenticationManager, userRepository, passwordEncoder, jwtTokenProvider);
 
-        // Setup userDTO for registration
         userDTO = new UserDTO();
         userDTO.setName("John Doe");
         userDTO.setEmail("john@example.com");
         userDTO.setPassword("password123");
-        userDTO.setRole(User.Role.valueOf("READER"));
+        userDTO.setRole(User.Role.READER);
 
-        // Setup authRequestDTO for login
         authRequestDTO = new AuthRequestDTO();
         authRequestDTO.setEmail("john@example.com");
         authRequestDTO.setPassword("password123");
 
-        // Setup user entity
         user = new User();
         user.setId(1);
         user.setName("John Doe");
@@ -109,16 +84,17 @@ public class AuthControllerTest {
     @Test
     void loginShouldReturnToken() throws Exception {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                authRequestDTO.getEmail(), authRequestDTO.getPassword());
+                authRequestDTO.getEmail(), authRequestDTO.getPassword(), Collections.emptyList());
 
-        when(authenticationManager.authenticate(any(Authentication.class)))
-                .thenReturn(authentication);
+        doReturn(authentication).when(authenticationManager).authenticate(any(Authentication.class));
+
         when(jwtTokenProvider.createToken(any(Authentication.class)))
                 .thenReturn("jwt-token");
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authRequestDTO)))
+                        .content(objectMapper.writeValueAsString(authRequestDTO))
+                        .with(csrf())) // Adicione o token CSRF
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value("jwt-token"));
     }
@@ -131,11 +107,12 @@ public class AuthControllerTest {
 
         mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDTO)))
+                        .content(objectMapper.writeValueAsString(userDTO))
+                        .with(csrf())) // Adicione o token CSRF
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("John Doe"))
                 .andExpect(jsonPath("$.email").value("john@example.com"))
-                .andExpect(jsonPath("$.password").doesNotExist()); // Password should not be in response
+                .andExpect(jsonPath("$.password").doesNotExist());
     }
 
     @Test
@@ -144,18 +121,20 @@ public class AuthControllerTest {
 
         mockMvc.perform(post("/api/v1/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userDTO)))
+                        .content(objectMapper.writeValueAsString(userDTO))
+                        .with(csrf())) // Adicione o token CSRF
                 .andExpect(status().isConflict());
     }
 
     @Test
     void loginShouldFailWithInvalidCredentials() throws Exception {
         when(authenticationManager.authenticate(any(Authentication.class)))
-                .thenThrow(new RuntimeException("Bad credentials"));
+                .thenThrow(new BadCredentialsException("Bad credentials"));
 
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(authRequestDTO)))
+                        .content(objectMapper.writeValueAsString(authRequestDTO))
+                        .with(csrf())) // Adicione o token CSRF
                 .andExpect(status().isUnauthorized());
     }
-}*/
+}

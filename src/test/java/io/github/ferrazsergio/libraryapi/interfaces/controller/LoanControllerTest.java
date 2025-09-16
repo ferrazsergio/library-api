@@ -1,9 +1,10 @@
-/*package controllers;
+package io.github.ferrazsergio.libraryapi.interfaces.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ferrazsergio.libraryapi.application.service.LoanService;
-import io.github.ferrazsergio.libraryapi.interfaces.controller.LoanController;
+import io.github.ferrazsergio.libraryapi.config.SecurityConfig;
 import io.github.ferrazsergio.libraryapi.interfaces.dto.LoanDTO;
+import io.github.ferrazsergio.libraryapi.security.JwtTokenProvider;
 import io.github.ferrazsergio.libraryapi.security.LoanSecurityService;
 import io.github.ferrazsergio.libraryapi.security.UserSecurityService;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,10 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -32,21 +36,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(LoanController.class)
-public class LoanControllerTest {
+@Import(SecurityConfig.class)
+class LoanControllerTest {
 
     @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public LoanService loanService() {
-            return Mockito.mock(LoanService.class);
-        }
-
-        @Bean
+    static class SecurityBeans {
+        @Bean("loanSecurityService")
         public LoanSecurityService loanSecurityService() {
             return Mockito.mock(LoanSecurityService.class);
         }
-
-        @Bean
+        @Bean("userSecurityService")
         public UserSecurityService userSecurityService() {
             return Mockito.mock(UserSecurityService.class);
         }
@@ -58,12 +57,19 @@ public class LoanControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
+    @MockitoBean
     private LoanService loanService;
+
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
+
+    // NÃO declare @MockitoBean para LoanSecurityService e UserSecurityService, pois já estão como beans nomeados acima
 
     @Autowired
     private LoanSecurityService loanSecurityService;
-
     @Autowired
     private UserSecurityService userSecurityService;
 
@@ -71,7 +77,6 @@ public class LoanControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Reset mocks before each test
         Mockito.reset(loanService, loanSecurityService, userSecurityService);
 
         loanDTO = new LoanDTO();
@@ -210,7 +215,7 @@ public class LoanControllerTest {
     @Test
     void unauthorizedUserCannotAccessLoans() throws Exception {
         mockMvc.perform(get("/api/v1/loans"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -219,4 +224,4 @@ public class LoanControllerTest {
         mockMvc.perform(get("/api/v1/loans"))
                 .andExpect(status().isForbidden());
     }
-}*/
+}

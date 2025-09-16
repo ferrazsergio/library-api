@@ -1,4 +1,4 @@
-package integration;
+package io.github.ferrazsergio.libraryapi.integration;
 
 import io.github.ferrazsergio.libraryapi.domain.model.Author;
 import io.github.ferrazsergio.libraryapi.domain.model.Book;
@@ -41,16 +41,11 @@ class AuthorIntegrationTest {
         registry.add("spring.datasource.password", postgresContainer::getPassword);
     }
 
+    @Autowired
+    private AuthorRepository authorRepository;
 
-    private final AuthorRepository authorRepository;
-
-
-    private final BookRepository bookRepository;
-
-    public AuthorIntegrationTest(AuthorRepository authorRepository, BookRepository bookRepository) {
-        this.authorRepository = authorRepository;
-        this.bookRepository = bookRepository;
-    }
+    @Autowired
+    private BookRepository bookRepository;
 
     @Test
     void shouldSaveAndFindAuthor() {

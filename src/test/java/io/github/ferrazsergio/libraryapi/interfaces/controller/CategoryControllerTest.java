@@ -1,20 +1,22 @@
-/*package controllers;
+package io.github.ferrazsergio.libraryapi.interfaces.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.ferrazsergio.libraryapi.application.service.BookService;
 import io.github.ferrazsergio.libraryapi.application.service.CategoryService;
-import io.github.ferrazsergio.libraryapi.interfaces.controller.CategoryController;
+import io.github.ferrazsergio.libraryapi.config.SecurityConfig;
 import io.github.ferrazsergio.libraryapi.interfaces.dto.CategoryDTO;
+import io.github.ferrazsergio.libraryapi.security.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -29,16 +31,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(CategoryController.class)
-public class CategoryControllerTest {
 
-    @TestConfiguration
-    static class TestConfig {
-        @Bean
-        public CategoryService categoryService() {
-            return Mockito.mock(CategoryService.class);
-        }
-    }
+@WebMvcTest(CategoryController.class)
+@Import(SecurityConfig.class)
+class CategoryControllerTest {
+
+    @MockitoBean
+    private CategoryService categoryService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -46,10 +45,16 @@ public class CategoryControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private CategoryService categoryService;
-
     private CategoryDTO categoryDTO;
+
+    @MockitoBean
+    private BookService bookService;
+
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockitoBean
+    private org.springframework.security.core.userdetails.UserDetailsService userDetailsService;
 
     @BeforeEach
     void setUp() {
@@ -130,7 +135,7 @@ public class CategoryControllerTest {
     @Test
     void unauthorizedUserCannotAccessCategories() throws Exception {
         mockMvc.perform(get("/api/v1/categories"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -148,4 +153,4 @@ public class CategoryControllerTest {
         mockMvc.perform(delete("/api/v1/categories/1"))
                 .andExpect(status().isForbidden());
     }
-}*/
+}

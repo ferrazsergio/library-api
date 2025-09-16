@@ -1,4 +1,4 @@
-package services;
+package io.github.ferrazsergio.libraryapi.services;
 
 import io.github.ferrazsergio.libraryapi.application.service.AuthorService;
 import io.github.ferrazsergio.libraryapi.domain.model.Author;

@@ -1,9 +1,10 @@
-/*package controllers;
+package io.github.ferrazsergio.libraryapi.interfaces.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ferrazsergio.libraryapi.application.service.BookService;
-import io.github.ferrazsergio.libraryapi.interfaces.controller.BookController;
+import io.github.ferrazsergio.libraryapi.config.SecurityConfig;
 import io.github.ferrazsergio.libraryapi.interfaces.dto.BookDTO;
+import io.github.ferrazsergio.libraryapi.security.JwtTokenProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -11,10 +12,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -31,7 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookController.class)
-public class BookControllerTest {
+@Import(SecurityConfig.class)
+class BookControllerTest {
 
     @TestConfiguration
     static class TestConfig {
@@ -41,16 +46,22 @@ public class BookControllerTest {
         }
     }
 
+    private BookDTO bookDTO;
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
+    @MockitoBean
     private BookService bookService;
 
-    private BookDTO bookDTO;
+    @MockitoBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
 
     @BeforeEach
     void setUp() {
@@ -163,7 +174,7 @@ public class BookControllerTest {
     @Test
     void unauthorizedUserCannotAccessBooks() throws Exception {
         mockMvc.perform(get("/api/v1/books"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -174,4 +185,4 @@ public class BookControllerTest {
                         .content(objectMapper.writeValueAsString(bookDTO)))
                 .andExpect(status().isForbidden());
     }
-}*/
+}
