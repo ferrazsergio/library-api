@@ -29,6 +29,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/books")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 @Tag(name = "Books", description = "Book management operations")
 @SecurityRequirement(name = "bearerAuth")
 public class BookController {

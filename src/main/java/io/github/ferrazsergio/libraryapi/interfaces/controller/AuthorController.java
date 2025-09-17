@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/authors")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 @Tag(name = "Authors", description = "Operations related to author management including creation, retrieval, update, and deletion")
 @SecurityRequirement(name = "bearerAuth")
 public class AuthorController {

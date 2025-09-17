@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/categories")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 @Tag(name = "Categories", description = "Operations related to book category management")
 @SecurityRequirement(name = "bearerAuth")
 public class CategoryController {

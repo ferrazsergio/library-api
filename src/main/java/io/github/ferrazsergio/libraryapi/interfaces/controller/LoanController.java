@@ -30,6 +30,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Tag(name = "Loans", description = "Operations related to book loans, returns, and renewals")
 @SecurityRequirement(name = "bearerAuth")
+@CrossOrigin(origins = "http://localhost:3000")
 public class LoanController {
 
     private final LoanService loanService;

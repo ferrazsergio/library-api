@@ -25,14 +25,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 @Tag(name = "Authentication", description = "Authentication operations for user login and registration")
 public class AuthController {
 
@@ -134,31 +132,24 @@ public class AuthController {
                     )
             }
     )
-    @SecurityRequirements() // Removes security requirements for this endpoint
-    public ResponseEntity<UserDTO> register(
-            @Parameter(
-                    description = "User registration details",
-                    required = true,
-                    schema = @Schema(implementation = UserDTO.class),
-                    examples = @ExampleObject(value = "{\"name\": \"Admin User\", \"email\": \"admin@example.com\", \"password\": \"password123\", \"role\": \"ADMIN\"}")
-            )
-            @Valid @RequestBody UserDTO userDTO) {
+    @SecurityRequirements()
+    public ResponseEntity<UserDTO> register(@Valid @RequestBody UserDTO userDTO) {
 
-        // Check if user exists
         if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
-        // Create new user
         User user = new User();
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        user.setPhone(userDTO.getPhone());
+        user.setAddress(userDTO.getAddress());
 
         try {
             user.setRole(User.Role.valueOf(String.valueOf(userDTO.getRole())));
         } catch (IllegalArgumentException e) {
-            user.setRole(User.Role.READER); // Default role
+            user.setRole(User.Role.READER);
         }
 
         User savedUser = userRepository.save(user);
