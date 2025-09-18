@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ActivityService activityService;
 
     @Transactional(readOnly = true)
     @Cacheable(value = "categories", key = "#id", unless = "#result == null")
@@ -53,6 +54,15 @@ public class CategoryService {
         category.setDescription(categoryDTO.getDescription());
 
         Category savedCategory = categoryRepository.save(category);
+
+        // Log activity
+        activityService.logActivity(
+                "CATEGORY_CREATED",
+                "Categoria criada: " + savedCategory.getName(),
+                null,
+                null
+        );
+
         return CategoryDTO.fromEntity(savedCategory);
     }
 
@@ -74,6 +84,15 @@ public class CategoryService {
         category.setDescription(categoryDTO.getDescription());
 
         Category updatedCategory = categoryRepository.save(category);
+
+        // Log activity
+        activityService.logActivity(
+                "CATEGORY_UPDATED",
+                "Categoria atualizada: " + updatedCategory.getName(),
+                null,
+                null
+        );
+
         return CategoryDTO.fromEntity(updatedCategory);
     }
 
@@ -89,5 +108,13 @@ public class CategoryService {
         }
 
         categoryRepository.delete(category);
+
+        // Log activity
+        activityService.logActivity(
+                "CATEGORY_DELETED",
+                "Categoria removida: " + category.getName(),
+                null,
+                null
+        );
     }
 }

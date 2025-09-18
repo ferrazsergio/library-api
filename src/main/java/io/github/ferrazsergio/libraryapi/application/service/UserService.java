@@ -27,6 +27,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final LoanRepository loanRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ActivityService activityService;
 
     @Transactional(readOnly = true)
     public UserDTO findById(Integer id) {
@@ -66,6 +67,15 @@ public class UserService {
         user.setCreatedAt(LocalDateTime.now());
 
         User savedUser = userRepository.save(user);
+
+        // Log activity
+        activityService.logActivity(
+                "USER_CREATED",
+                "Usuário criado: " + savedUser.getName(),
+                savedUser.getName(),
+                null
+        );
+
         return UserDTO.fromEntity(savedUser);
     }
 
@@ -101,6 +111,15 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
 
         User updatedUser = userRepository.save(user);
+
+        // Log activity
+        activityService.logActivity(
+                "USER_UPDATED",
+                "Usuário atualizado: " + updatedUser.getName(),
+                updatedUser.getName(),
+                null
+        );
+
         return UserDTO.fromEntity(updatedUser);
     }
 
@@ -114,6 +133,14 @@ public class UserService {
         user.setDeleted(true);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
+
+        // Log activity
+        activityService.logActivity(
+                "USER_DELETED",
+                "Usuário removido: " + user.getName(),
+                user.getName(),
+                null
+        );
     }
 
     // ==================== MÉTODOS PARA DASHBOARD ====================

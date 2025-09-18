@@ -30,6 +30,7 @@ public class LoanService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final FineRepository fineRepository;
+    private final ActivityService activityService;
 
     @Transactional
     public LoanDTO createLoan(LoanDTO loanDTO) {
@@ -68,6 +69,14 @@ public class LoanService {
         // Save the loan
         Loan savedLoan = loanRepository.save(loan);
 
+        // Log activity
+        activityService.logActivity(
+                "LOAN_CREATED",
+                "Empréstimo criado para o livro " + book.getTitle(),
+                user.getName(),
+                book.getTitle()
+        );
+
         return LoanDTO.fromEntity(savedLoan);
     }
 
@@ -91,6 +100,14 @@ public class LoanService {
         // Save the updated loan
         Loan updatedLoan = loanRepository.save(loan);
 
+        // Log activity
+        activityService.logActivity(
+                "LOAN_RETURNED",
+                "Livro devolvido: " + book.getTitle(),
+                loan.getUser().getName(),
+                book.getTitle()
+        );
+
         return LoanDTO.fromEntity(updatedLoan);
     }
 
@@ -101,6 +118,14 @@ public class LoanService {
 
         loan.renew();
         Loan updatedLoan = loanRepository.save(loan);
+
+        // Log activity
+        activityService.logActivity(
+                "LOAN_RENEWED",
+                "Empréstimo renovado para o livro " + loan.getBook().getTitle(),
+                loan.getUser().getName(),
+                loan.getBook().getTitle()
+        );
 
         return LoanDTO.fromEntity(updatedLoan);
     }

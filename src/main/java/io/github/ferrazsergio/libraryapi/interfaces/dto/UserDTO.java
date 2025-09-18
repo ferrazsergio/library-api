@@ -20,6 +20,7 @@ public class UserDTO {
     private String phone;
     private String address;
     private User.Role role;
+    private User.Status status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -32,6 +33,7 @@ public class UserDTO {
                 .phone(user.getPhone())
                 .address(user.getAddress())
                 .role(user.getRole())
+                .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();

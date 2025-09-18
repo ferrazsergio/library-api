@@ -19,6 +19,7 @@ public class AuthorService {
 
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
+    private final ActivityService activityService;
 
     @Transactional(readOnly = true)
     @Cacheable(value = "authors", key = "#id", unless = "#result == null")
@@ -60,6 +61,15 @@ public class AuthorService {
         author.setBirthDate(authorDTO.getBirthDate());
 
         Author savedAuthor = authorRepository.save(author);
+
+        // Log activity
+        activityService.logActivity(
+                "AUTHOR_CREATED",
+                "Autor criado: " + savedAuthor.getName(),
+                null,
+                null
+        );
+
         return AuthorDTO.fromEntity(savedAuthor);
     }
 
@@ -74,6 +84,15 @@ public class AuthorService {
         author.setBirthDate(authorDTO.getBirthDate());
 
         Author updatedAuthor = authorRepository.save(author);
+
+        // Log activity
+        activityService.logActivity(
+                "AUTHOR_UPDATED",
+                "Autor atualizado: " + updatedAuthor.getName(),
+                null,
+                null
+        );
+
         return AuthorDTO.fromEntity(updatedAuthor);
     }
 
@@ -89,5 +108,13 @@ public class AuthorService {
         }
 
         authorRepository.delete(author);
+
+        // Log activity
+        activityService.logActivity(
+                "AUTHOR_DELETED",
+                "Autor removido: " + author.getName(),
+                null,
+                null
+        );
     }
 }

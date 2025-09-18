@@ -37,6 +37,10 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status = Status.ACTIVE;
+    
     private String phone;
 
     private String address;
@@ -68,6 +72,10 @@ public class User {
 
     public enum Role {
         ADMIN, LIBRARIAN, READER
+    }
+
+    public enum Status {
+        ACTIVE, INACTIVE
     }
 
     @Override

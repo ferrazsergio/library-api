@@ -31,6 +31,7 @@ public class BookService {
     private final AuthorRepository authorRepository;
     private final CategoryRepository categoryRepository;
     private final LoanRepository loanRepository;
+    private final ActivityService activityService;
 
     @Transactional(readOnly = true)
     @Cacheable(value = "books", key = "#isbn", unless = "#result == null")
@@ -112,6 +113,14 @@ public class BookService {
         // Save the book
         Book savedBook = bookRepository.save(book);
 
+        // Log activity
+        activityService.logActivity(
+                "BOOK_CREATED",
+                "Livro criado: " + savedBook.getTitle(),
+                null,
+                savedBook.getTitle()
+        );
+
         return BookDTO.fromEntity(savedBook);
     }
 
@@ -153,7 +162,7 @@ public class BookService {
             book.setCategory(null);
         }
 
-        // Update authors if provided - MÉTODO MODIFICADO PARA RESOLVER O ERRO
+        // Update authors if provided
         if (bookDTO.getAuthorIds() != null) {
             // Limpar a coleção existente para evitar ConcurrentModificationException
             book.getAuthors().clear();
@@ -167,6 +176,15 @@ public class BookService {
         }
 
         Book updatedBook = bookRepository.save(book);
+
+        // Log activity
+        activityService.logActivity(
+                "BOOK_UPDATED",
+                "Livro atualizado: " + updatedBook.getTitle(),
+                null,
+                updatedBook.getTitle()
+        );
+
         return BookDTO.fromEntity(updatedBook);
     }
 
@@ -179,6 +197,14 @@ public class BookService {
         // Perform soft delete
         book.setDeleted(true);
         bookRepository.save(book);
+
+        // Log activity
+        activityService.logActivity(
+                "BOOK_DELETED",
+                "Livro removido: " + book.getTitle(),
+                null,
+                book.getTitle()
+        );
     }
 
     @Transactional(readOnly = true)
