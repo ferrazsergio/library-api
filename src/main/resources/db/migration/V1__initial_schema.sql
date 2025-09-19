@@ -43,6 +43,7 @@ CREATE TABLE users (
                        phone VARCHAR(255),
                        address VARCHAR(255),
                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                       status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
                        updated_at TIMESTAMP,
                        deleted_at TIMESTAMP,
                        deleted BOOLEAN NOT NULL DEFAULT FALSE

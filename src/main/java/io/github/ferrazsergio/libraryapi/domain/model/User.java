@@ -70,6 +70,9 @@ public class User {
         updatedAt = LocalDateTime.now();
     }
 
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     public enum Role {
         ADMIN, LIBRARIAN, READER
     }

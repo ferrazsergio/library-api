@@ -23,6 +23,7 @@ public class UserDTO {
     private User.Status status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private String avatarUrl;
 
     // Método para converter entidade para DTO (sem retornar a senha)
     public static UserDTO fromEntity(User user) {
@@ -36,6 +37,7 @@ public class UserDTO {
                 .status(user.getStatus())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
+                .avatarUrl(user.getAvatarUrl())
                 .build();
     }
 }

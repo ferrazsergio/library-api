@@ -102,7 +102,7 @@ public class Loan {
     }
 
     public enum LoanStatus {
-        ACTIVE, RETURNED, LOST
+        ACTIVE, RETURNED, LOST, OVERDUE
     }
 
     @Override

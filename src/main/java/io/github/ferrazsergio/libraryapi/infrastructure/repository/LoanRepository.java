@@ -25,7 +25,7 @@ public interface LoanRepository extends JpaRepository<Loan, Integer> {
     @Query("SELECT COUNT(l) FROM Loan l WHERE l.status = 'ACTIVE' AND l.book.id = :bookId")
     long countActiveLoansForBook(@Param("bookId") Integer bookId);
 
-    @Query("SELECT COUNT(l) FROM Loan l WHERE l.status = 'ACTIVE' AND l.expectedReturnDate < CURRENT_DATE")
+    @Query("SELECT COUNT(l) FROM Loan l WHERE l.status = 'OVERDUE'")
     long countOverdueLoans();
 
     @Query("SELECT COUNT(l) FROM Loan l WHERE l.status = 'RETURNED' AND (l.returnDate <= l.expectedReturnDate)")

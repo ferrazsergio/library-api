@@ -6,6 +6,7 @@ import io.github.ferrazsergio.libraryapi.infrastructure.repository.UserRepositor
 import io.github.ferrazsergio.libraryapi.interfaces.dto.UserDTO;
 import io.github.ferrazsergio.libraryapi.interfaces.dto.UserStatisticsDTO;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.io.FilenameUtils;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -14,7 +15,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +57,6 @@ public class UserService {
     @Transactional
     @CacheEvict(value = "userStats", allEntries = true)
     public UserDTO create(UserDTO userDTO) {
-        // Verify if email already exists
         userRepository.findByEmail(userDTO.getEmail())
                 .ifPresent(user -> {
                     throw new RuntimeException("Email already in use: " + userDTO.getEmail());
@@ -64,11 +69,11 @@ public class UserService {
         user.setPhone(userDTO.getPhone());
         user.setAddress(userDTO.getAddress());
         user.setRole(userDTO.getRole());
+        user.setStatus(userDTO.getStatus());
         user.setCreatedAt(LocalDateTime.now());
 
         User savedUser = userRepository.save(user);
 
-        // Log activity
         activityService.logActivity(
                 "USER_CREATED",
                 "Usuário criado: " + savedUser.getName(),
@@ -85,7 +90,6 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
-        // Check if email is already in use by another user
         if (!user.getEmail().equals(userDTO.getEmail())) {
             userRepository.findByEmail(userDTO.getEmail())
                     .ifPresent(existingUser -> {
@@ -98,21 +102,22 @@ public class UserService {
         user.setPhone(userDTO.getPhone());
         user.setAddress(userDTO.getAddress());
 
-        // Only update password if it's provided
         if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         }
 
-        // Only admin can change roles
         if (userDTO.getRole() != null) {
             user.setRole(userDTO.getRole());
+        }
+
+        if (userDTO.getStatus() != null) {
+            user.setStatus(userDTO.getStatus());
         }
 
         user.setUpdatedAt(LocalDateTime.now());
 
         User updatedUser = userRepository.save(user);
 
-        // Log activity
         activityService.logActivity(
                 "USER_UPDATED",
                 "Usuário atualizado: " + updatedUser.getName(),
@@ -129,12 +134,10 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
-        // Soft delete
         user.setDeleted(true);
         user.setDeletedAt(LocalDateTime.now());
         userRepository.save(user);
 
-        // Log activity
         activityService.logActivity(
                 "USER_DELETED",
                 "Usuário removido: " + user.getName(),
@@ -143,24 +146,12 @@ public class UserService {
         );
     }
 
-    // ==================== MÉTODOS PARA DASHBOARD ====================
-
-    /**
-     * Retorna o número total de usuários ativos no sistema.
-     *
-     * @return total de usuários
-     */
     @Transactional(readOnly = true)
     @Cacheable(value = "userStats", key = "'totalUsers'")
     public long getTotalUsers() {
         return userRepository.countByDeletedFalse();
     }
 
-    /**
-     * Retorna o número de novos usuários registrados no último mês.
-     *
-     * @return total de novos usuários
-     */
     @Transactional(readOnly = true)
     @Cacheable(value = "userStats", key = "'newUsersLastMonth'")
     public long getNewUsersLastMonth() {
@@ -168,12 +159,6 @@ public class UserService {
         return userRepository.countByCreatedAtAfterAndDeletedFalse(oneMonthAgo);
     }
 
-    /**
-     * Retorna os usuários mais ativos (com mais empréstimos).
-     *
-     * @param limit número máximo de usuários a retornar
-     * @return lista de estatísticas por usuário
-     */
     @Transactional(readOnly = true)
     @Cacheable(value = "userStats", key = "'mostActiveUsers:' + #limit")
     public List<UserStatisticsDTO> getMostActiveUsers(int limit) {
@@ -192,11 +177,6 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Retorna a porcentagem de usuários ativos (que fizeram empréstimos recentemente).
-     *
-     * @return porcentagem de usuários ativos
-     */
     @Transactional(readOnly = true)
     @Cacheable(value = "userStats", key = "'activeUsersPercentage'")
     public double getActiveUsersPercentage() {
@@ -211,17 +191,36 @@ public class UserService {
         return (double) activeUsers / totalUsers * 100.0;
     }
 
-    /**
-     * Retorna os usuários recentemente registrados.
-     *
-     * @param limit número máximo de usuários a retornar
-     * @return lista de usuários recentes
-     */
     @Transactional(readOnly = true)
     public List<UserDTO> getRecentlyRegisteredUsers(int limit) {
         return userRepository.findByDeletedFalseOrderByCreatedAtDesc(PageRequest.of(0, limit))
                 .stream()
                 .map(UserDTO::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    public String saveUserAvatar(User user, MultipartFile file) {
+        try {
+            Path uploadPath = Paths.get(System.getProperty("user.dir"), "uploads", "avatars");
+
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String extension = originalFilename != null && originalFilename.contains(".")
+                    ? originalFilename.substring(originalFilename.lastIndexOf("."))
+                    : ".png";
+
+            String filename = "user_" + user.getId() + "_" + System.currentTimeMillis() + extension;
+            Path filePath = uploadPath.resolve(filename);
+
+            file.transferTo(filePath.toFile());
+
+            return "/api/v1/users/files/avatars/" + filename;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Erro ao salvar avatar: " + e.getMessage(), e);
+        }
     }
 }

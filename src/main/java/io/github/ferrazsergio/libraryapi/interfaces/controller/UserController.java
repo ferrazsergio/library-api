@@ -1,13 +1,22 @@
 package io.github.ferrazsergio.libraryapi.interfaces.controller;
 
+import io.github.ferrazsergio.libraryapi.application.service.UserService;
 import io.github.ferrazsergio.libraryapi.domain.model.User;
 import io.github.ferrazsergio.libraryapi.infrastructure.repository.UserRepository;
 import io.github.ferrazsergio.libraryapi.interfaces.dto.UserDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -17,6 +26,7 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @GetMapping("/me")
     public ResponseEntity<UserDTO> getMe(Authentication authentication) {
@@ -53,6 +63,7 @@ public class UserController {
         User updated = userRepository.save(user);
         return ResponseEntity.ok(UserDTO.fromEntity(updated));
     }
+
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody UserDTO userDTO) {
         User user = new User();
@@ -66,6 +77,7 @@ public class UserController {
         User saved = userRepository.save(user);
         return ResponseEntity.ok(UserDTO.fromEntity(saved));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
         if (!userRepository.existsById(id)) {
@@ -73,5 +85,48 @@ public class UserController {
         }
         userRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/me/avatar")
+    public ResponseEntity<UserDTO> uploadAvatar(Authentication authentication,
+                                                @RequestParam("avatar") MultipartFile file) {
+        try {
+            String email = authentication.getName();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+            String avatarUrl = userService.saveUserAvatar(user, file);
+            user.setAvatarUrl(avatarUrl);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(UserDTO.fromEntity(user));
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao fazer upload do avatar: " + e.getMessage(), e);
+        }
+    }
+
+    @GetMapping("/files/avatars/{filename:.+}")
+    public ResponseEntity<Resource> getAvatarFile(@PathVariable String filename) {
+        try {
+            Path uploadPath = Paths.get(System.getProperty("user.dir"), "uploads", "avatars");
+            Path filePath = uploadPath.resolve(filename);
+
+            if (!Files.exists(filePath)) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (!resource.exists() || !resource.isReadable()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(resource);
+
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
