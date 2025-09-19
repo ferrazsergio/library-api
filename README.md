@@ -1,65 +1,82 @@
-# Library Management System API
+# 📚 Library Management System API
 
-This is a comprehensive library management system API built with Java 21, Spring Boot 3.4+, and modern architecture principles.
+API robusta e moderna para gerenciamento de bibliotecas, desenvolvida com **Java 21** e **Spring Boot 3.4+**. Controle completo de livros, autores, usuários, empréstimos, multas e estatísticas — pronta para produção, escalável e fácil de integrar com front-ends modernos.
 
-## Features
+---
 
-- Complete management of books, authors, and categories
-- User authentication and authorization with JWT
-- Loan management with fine calculation
-- Reporting and statistics
-- Caching with Redis
-- Dockerized for easy deployment
+## ✨ Features
 
-## Prerequisites
+- **Gestão completa** de livros, autores, categorias e usuários
+- **Autenticação JWT** com RBAC (admin, bibliotecário, leitor)
+- **Empréstimos, devoluções** e cálculo automático de multas por atraso
+- **Relatórios e estatísticas** em endpoints dedicados
+- **Cache Redis** para performance
+- **Soft delete** para histórico de dados
+- **Arquitetura limpa** (DDD, separação de camadas)
+- **Documentação OpenAPI/Swagger** automática
+- **Testes unitários e integração** com cobertura elevada
+- **Pronta para Docker e escalabilidade**
+
+---
+
+## 🛠️ Stack Tecnológica
+
+- **Java 21**, recursos modernos (Records, Pattern Matching, Virtual Threads)
+- **Spring Boot 3.4+** (Web, Security, Data JPA, Validation, Actuator)
+- **PostgreSQL** & **Flyway**
+- **Redis** para cache
+- **JUnit 5**, **TestContainers**
+- **Docker & Docker Compose**
+
+---
+
+## 🚀 Como rodar
+
+### Pré-requisitos
 
 - Java 21
-- Docker and Docker Compose
-- Maven (or use the included wrapper)
+- Docker e Docker Compose
+- Maven (ou use o wrapper incluso)
 
-## Getting Started
-
-### Running with Docker
-
-The easiest way to get started is using Docker Compose:
+### Subindo tudo com Docker Compose
 
 ```bash
-# Build and start all services
 docker-compose up -d
+```
 
-# To stop all services
+- API disponível em `http://localhost:8080`
+- PostgreSQL em `localhost:5432`
+- Redis em `localhost:6379`
+
+Para parar:
+
+```bash
 docker-compose down
 ```
 
-This will start:
-- The Library API application on port 8080
-- PostgreSQL database on port 5432
-- Redis cache on port 6379
-
-### Running Locally for Development
+### Rodando localmente para desenvolvimento
 
 ```bash
-# Start PostgreSQL and Redis using Docker
 docker-compose up -d db redis
-
-# Run the application
 ./mvnw spring-boot:run
 ```
 
-## API Documentation
+---
 
-Once the application is running, you can access the OpenAPI documentation at:
+## 📑 Documentação OpenAPI
 
-- http://localhost:8080/swagger-ui/index.html
+Após rodar a aplicação, acesse:
 
-## Testing the API
+- [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
 
-Here are some basic curl commands to test the API:
+---
 
-### Authentication
+## 🧪 Testando a API (exemplos curl)
+
+### Autenticação
 
 ```bash
-# Register a new user
+# Registrar usuário
 curl -X POST http://localhost:8080/api/v1/auth/register \
   -H "Content-Type: application/json" \
   -d '{"name":"Admin User","email":"admin@example.com","password":"password123","role":"ADMIN"}'
@@ -69,32 +86,31 @@ curl -X POST http://localhost:8080/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@example.com","password":"password123"}'
 ```
+Guarde o JWT retornado para as próximas requisições!
 
-Copy the JWT token from the login response for subsequent requests.
-
-### Managing Books
+### Livros, autores e categorias
 
 ```bash
-# Create a category first
+# Criar categoria
 curl -X POST http://localhost:8080/api/v1/categories \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{"name":"Fiction","description":"Fiction books"}'
+  -d '{"name":"Ficção","description":"Livros de ficção"}'
 
-# Create an author
+# Criar autor
 curl -X POST http://localhost:8080/api/v1/authors \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
-  -d '{"name":"George Orwell","biography":"English novelist and essayist","birthDate":"1903-06-25"}'
+  -d '{"name":"George Orwell","biography":"Inglês, romancista","birthDate":"1903-06-25"}'
 
-# Create a book
+# Criar livro
 curl -X POST http://localhost:8080/api/v1/books \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{
     "isbn":"9780451524935",
     "title":"1984",
-    "description":"Dystopian social science fiction novel",
+    "description":"Romance distópico",
     "publishDate":"1949-06-08",
     "availableQuantity":5,
     "totalQuantity":5,
@@ -103,39 +119,50 @@ curl -X POST http://localhost:8080/api/v1/books \
     "publisher":"Secker & Warburg"
   }'
 
-# List all books
+# Listar livros
 curl -X GET http://localhost:8080/api/v1/books \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-### Managing Loans
+### Empréstimos
 
 ```bash
-# Create a loan
+# Criar empréstimo
 curl -X POST http://localhost:8080/api/v1/loans \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{"userId":1,"bookId":1}'
 
-# Return a book
+# Devolver livro
 curl -X PUT http://localhost:8080/api/v1/loans/1/return \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
-## Running Tests
+---
+
+## ✅ Testes
 
 ```bash
-# Run all tests
 ./mvnw test
-
-# Run specific test class
+# Ou para rodar uma classe específica
 ./mvnw test -Dtest=BookServiceTest
 ```
 
-## Monitoring
+---
 
-The application includes Spring Boot Actuator endpoints for monitoring:
+## 📊 Monitoramento
 
-- Health check: http://localhost:8080/actuator/health
-- Metrics: http://localhost:8080/actuator/metrics
-- Prometheus endpoint: http://localhost:8080/actuator/prometheus
+- Health check: [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
+- Métricas: [http://localhost:8080/actuator/metrics](http://localhost:8080/actuator/metrics)
+- Prometheus: [http://localhost:8080/actuator/prometheus](http://localhost:8080/actuator/prometheus)
+
+---
+
+## 📦 Integração com Front-End
+
+Combine com o [library-web](https://github.com/ferrazsergio/library-web) para uma experiência completa de gestão de biblioteca, com dashboard, gráficos, uploads e muito mais!
+
+---
+
+Desenvolvido por [@ferrazsergio](https://github.com/ferrazsergio)  
+#Java #SpringBoot #CleanArchitecture #API #Biblioteca #Backend #OpenSource
